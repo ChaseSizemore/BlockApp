@@ -1,0 +1,19 @@
+.tm {
+  padding: 2px 0 4px;
+  flex-shrink: 0;
+}
+
+.tm__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink-mute);
+}
+
+.tm__value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

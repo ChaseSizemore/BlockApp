@@ -1,0 +1,38 @@
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.app {
+  height: 100dvh;
+  background: var(--cream);
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.app__shell {
+  width: 100%;
+  max-width: 460px;
+  height: 100dvh;
+  padding: 10px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeUp 0.45s ease both;
+  overflow: hidden;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app__board-area {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}

@@ -1,0 +1,3 @@
+- On mobile should NOT be able to scroll. everything should adjust to screen size well but the screen should be locked. everything visible on each screen.
+- There needs to be a way to put a block BACK to the "your blocks" section. what if i make a mistake and need to undo a move?
+- the rotate, flip,  buttons are unusable because clicking over them just attempts to put the piece there. sometimes it works sometimes it doesnt

@@ -1,0 +1,65 @@
+.ctrls {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr;
+  gap: 6px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.ctrls__btn {
+  padding: 9px 6px;
+  font-size: 11px;
+}
+
+.ctrls__btn--cancel {
+  padding: 9px 0;
+  font-size: 15px;
+}
+
+.ctrls__btn {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  background: var(--cream-deep);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.ctrls__btn:not(:disabled):hover {
+  background: var(--line-soft);
+}
+
+.ctrls__btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.ctrls__btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.ctrls__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ctrls__btn--drop {
+  background: #4A4339;
+  color: #F4EFE4;
+  border-color: #2C2620;
+}
+
+.ctrls__btn--drop:not(:disabled):hover {
+  background: var(--ink);
+}
+
+.ctrls__btn--drop-on {
+  background: var(--ink);
+}

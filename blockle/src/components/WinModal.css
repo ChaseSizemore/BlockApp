@@ -1,0 +1,111 @@
+.win {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 26, 20, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: winFade 0.2s ease;
+}
+
+@keyframes winFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.win__card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 24px 22px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  animation: winPop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+@keyframes winPop {
+  from { transform: scale(0.92) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.win__kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--bad);
+}
+
+.win__title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: var(--ink);
+}
+
+.win__sub {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-mute);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.win__stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.win__stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.win__stat-lbl {
+  margin-top: 4px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+
+.win__grid {
+  margin: 16px auto 0;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 16px;
+  line-height: 1.05;
+  white-space: pre;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.win__share {
+  margin-top: 16px;
+  width: 100%;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.win__share:hover { background: #2C2620; }
+
+.win__countdown {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}

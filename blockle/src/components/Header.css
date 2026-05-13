@@ -1,0 +1,98 @@
+.hd {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 4px 12px;
+  align-items: start;
+  padding: 4px 0 6px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hd__left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hd__right {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.hd__brand {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+}
+
+.hd__dot {
+  color: var(--bad);
+}
+
+.hd__tagline {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+
+.hd__meta {
+  text-align: right;
+}
+
+.hd__num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.hd__date {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+
+.hd__help {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cream-deep);
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  transition: background 0.15s ease;
+}
+.hd__help:hover { background: var(--line-soft); }
+
+.hd__streak {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  background: var(--ink);
+  color: #F4EFE4;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.02em;
+}
+
+.hd__streak-emoji {
+  font-size: 12px;
+  line-height: 1;
+}
