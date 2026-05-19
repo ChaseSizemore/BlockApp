@@ -716,7 +716,6 @@ export default function App() {
           active={selectedId !== null}
           onRotate={(e) => { e?.stopPropagation?.(); rotate(); }}
           onFlip={(e) => { e?.stopPropagation?.(); flip(); }}
-          onCancel={(e) => { e?.stopPropagation?.(); cancelSelection(); }}
         />
         <Tray
           ref={trayRef}

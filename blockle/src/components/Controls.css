@@ -1,6 +1,6 @@
 .ctrls {
   display: grid;
-  grid-template-columns: 40px 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin-top: 6px;
   flex-shrink: 0;
@@ -9,11 +9,6 @@
 .ctrls__btn {
   padding: 9px 6px;
   font-size: 11px;
-}
-
-.ctrls__btn--cancel {
-  padding: 9px 0;
-  font-size: 15px;
 }
 
 .ctrls__btn {
