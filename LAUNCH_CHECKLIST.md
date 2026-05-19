@@ -1,110 +1,124 @@
 # Cobble — Pre-Launch Checklist
 
 Tracking what stands between the current codebase and a public launch.
-Estimated total focused work: **3–4 days**, assuming domain purchase happens in parallel.
 
-Items are ordered by impact on the build → market → sell goal:
-- **Must-fix** blocks launch.
-- **High-value** is hygiene that materially affects first impression / virality.
-- **Low-risk** is nice-to-have, defer until you see traffic.
+Two deploy paths:
+- **Mobile Test Deploy** (private URL on Vercel/Netlify to play on your own phone): minimal subset, ~30 min of code work + 15 min deploy
+- **Public Launch**: full hygiene pass for the first wave of strangers
 
 ---
 
-## 1. Must-Fix Before Launch
+## 0. Done So Far
 
-These ship-blockers — a buyer should never see a half-finished prototype.
+Game / engine:
+- [x] Free-form drag interaction (tray / placed / floating piece states)
+- [x] Concave-corner rendering bug fixed
+- [x] Mobile viewport lock (100dvh, no scroll)
+- [x] Selection visual (2px ink outline, no chunky shadows)
+- [x] Difficulty scorer (Easy / Medium / Hard / Expert)
+- [x] Hint-pair rotation (cycles all 66 piece pairs across days)
+- [x] Curated puzzle catalog generator (`scripts/curate.mjs`) + 40-puzzle sample shipped
+- [x] Daily generation prefers curated entries; live-generation fallback
+- [x] Time-budgeted solver (no hangs on pathological seeds)
 
-- [ ] **Cull win-flow variants to one.** Currently 7 in dev mode.
-  - Recommended commit: **Variant 1 (Classic modal)** + **time-mosaic share** body.
-  - Action: delete the other 6 variant components and `WIN_VARIANT` from dev panel.
-  - Est: 30 min.
+Win flow:
+- [x] 7 win-modal variants prototyped, selectable in dev panel
+- [x] Variant 2 (Takeover) polished with inline SVG of solved board (real piece colors)
+- [x] Share text uses time-mosaic encoding (`🟫` per 10s, partial `🟨`) — non-spoilery, no emoji palette collisions
+- [x] Win modal close `×` + tap-timer-to-reopen flow
 
-- [ ] **Build a real share mechanic.** The "play signature" is currently faked.
-  - Recommended: time-mosaic (every 10s = one ▢ square; total mosaic = your solve time as a shape).
-  - Non-spoilery, no piece-color collision, scales with effort, visually unique.
-  - Est: ~1 hour.
+Pre-game / timing:
+- [x] **Start Puzzle screen** — puzzle hidden until tapped (eliminates pre-thinking exploit)
+- [x] **Fair timer** — auto-pauses on `visibilitychange: hidden`, resumes silently, persists every 5s + on `beforeunload`
+- [x] First-time onboarding handled by StartScreen (no separate tutorial needed)
 
-- [ ] **Generate the full curated puzzle catalog.**
-  - Command: `node scripts/curate.mjs 365`
-  - Compute: ~5–6 minutes, one-time.
-  - Without this, the game cycles through 40 puzzles every 40 days — a regular player notices.
+Dev tooling:
+- [x] DevPanel with auto-solve, regenerate, variant picker, difficulty tier (gated on `import.meta.env.DEV`)
+- [x] Stale `cobble:v1:override:*` localStorage cleanup on mount
 
-- [ ] **Verify dev-only code is stripped in production builds.**
-  - `DevPanel` is gated on `import.meta.env.DEV` — should be removed automatically.
-  - Run `npm run build && npm run preview` and click around the production bundle to confirm no dev tools leak.
-
-- [ ] **Real-device mobile testing.**
-  - iOS Safari + Android Chrome. Specifically:
-    - [ ] Pinch-zoom doesn't fight gameplay (`user-scalable=no` is set; double-check).
-    - [ ] Long-press doesn't trigger iOS context menu over a piece.
-    - [ ] `100dvh` layout isn't cut off by the URL bar.
-    - [ ] Drag works smoothly one-thumbed.
-
-- [ ] **First-time onboarding.**
-  - Currently the HelpModal exists but never auto-opens — new players have no instructions.
-  - Action: auto-open Help on first visit, gated by `localStorage.getItem('cobble:v1:seen')`.
-
----
-
-## 2. High-Value Before Launch
-
-These don't block deploy but they affect virality and first impressions.
-
-- [ ] **Buy the domain.** Suggested in order:
-  - [ ] `cobble.game` (ideal)
-  - [ ] `cobble.fun`
-  - [ ] `playcobble.com`
-  - [ ] `cobble.daily`
-  - Cost: ~$12/yr at Cloudflare.
-  - **Do this first.** The name shouldn't be the blocker.
-
-- [ ] **OG meta tags + social preview image.**
-  - In `index.html`:
-    - `<meta property="og:title">`, `og:description`, `og:image`, `og:url`
-    - `<meta name="twitter:card" content="summary_large_image">`, `twitter:image`, etc.
-  - Preview image: **1200 × 630 px PNG**. Wordmark over a board on cream paper. Reuse forever.
-  - This is what determines if a tweet of your URL gets clicked.
-
-- [ ] **Favicon + app icon.**
-  - Replace the Vite default.
-  - Simple cream square with the red dot suffices.
-  - Sizes needed: `favicon.ico`, `apple-touch-icon.png` (180×180), `icon-192.png`, `icon-512.png`.
-
-- [ ] **Privacy-friendly analytics.**
-  - Plausible.io or Fathom — one-line script tag, ~$9/mo.
-  - Gives daily-actives, retention, source-of-traffic.
-  - You'll want this data when an acquirer asks "how many users?"
-
-- [ ] **Review HelpModal content for clarity.**
-  - A first-timer should grok the goal in <10 seconds.
-  - Keep it to ~3 short sentences + one screenshot/diagram.
+Brand:
+- [x] Renamed BLOCKLE → Cobble
+- [x] Tagline "A DAILY ARRANGEMENT"
+- [x] Storage keys at `cobble:v1:*`
 
 ---
 
-## 3. Low-Risk / Nice-to-Have (post-launch is fine)
+## 1. Mobile Test Deploy — Critical Subset
 
-- [ ] **Sound.** Subtle click on snap-in, chime on win. Toggleable. Big retention boost but not required.
-- [ ] **Standalone stats modal** (separate from win modal): `🔥 Streak / 📊 Total / ⌛ Best time`.
-- [ ] **React error boundary** wrapping `<App>` — show "Something went wrong, try refresh" instead of a white screen on JS errors.
-- [ ] **Lighthouse performance check.** Bundle is 73 KB gzipped — should score 95+ already, but worth confirming.
-- [ ] **Animated tutorial overlay** on first visit (hand pointing at the tray, then board). Higher-end onboarding; do if analytics show drop-off.
+What you actually need before pushing this to Vercel and opening it on your phone:
+
+- [ ] **Lock default win variant to 2 (Takeover).** Currently defaults to 1. Since the dev panel is hidden in prod builds, whatever the default is, that's what mobile testers see. ~1 line change.
+
+- [ ] **Verify dev panel is invisible in production build.** Run `npm run build && npm run preview`, open on phone (or DevTools mobile mode), confirm no DevPanel renders. Should already be true via `import.meta.env.DEV` gate, but worth a sanity check.
+
+- [ ] **Decide on share button for mobile test.**
+  - Option A: leave enabled — actually useful to test `navigator.share` on a real phone (it pops the native share sheet on iOS/Android).
+  - Option B: grey it out (your earlier instinct) if you'd rather not field "the share doesn't look right" feedback yet.
+  - **My recommendation: keep enabled.** The point of a mobile test is exercising every path on real hardware.
+
+- [ ] **Commit + push remaining changes to `test-win-flow`.** Then merge to `main`.
+
+- [ ] **Deploy.** Vercel: connect the GitHub repo, takes ~2 minutes. Vercel auto-assigns `cobble-xxxx.vercel.app` URL. Open that on your phone.
+
+- [ ] **Test on real devices:**
+  - [ ] iOS Safari (iPhone)
+  - [ ] Android Chrome (if available)
+  - Specifically: drag-and-drop precision, Start screen tap, timer behavior across tab switches, win modal close+reopen, share button behavior.
+
+**Estimated time: 30 min code work + 15 min deploy + however long you test = ~1–2 hours total to playable on phone.**
 
 ---
 
-## 4. Deployment Steps (~20 min once the above is done)
+## 2. Public Launch — Additional Hygiene
 
-- [ ] Push code to GitHub (private repo is fine).
-- [ ] Sign up for Vercel; "Import Project," select repo.
-- [ ] Vercel auto-detects Vite — runs `npm run build`, serves `dist/`.
-- [ ] Add custom domain in Vercel's UI; update DNS at registrar.
-- [ ] Test production URL on phone + desktop.
-- [ ] Tweet it.
+Beyond the mobile test deploy, these matter for the first wave of strangers:
+
+- [ ] **Generate the full curated puzzle catalog.** Currently 40 puzzles (40-day cycle). Run `node scripts/curate.mjs 365` for a year's worth. ~5–6 minutes of compute.
+
+- [ ] **Domain.** Buy `cobble.game` or alternative (`cobble.fun`, `playcobble.com`, `cobble.daily`). Cost ~$12/yr.
+
+- [ ] **OG meta tags + social preview image.** 1200 × 630 PNG for Twitter/iMessage rich previews. Without this, links look generic.
+
+- [ ] **Favicon + app icon.** Replace Vite default. Sizes: `favicon.ico`, `apple-touch-icon.png` (180×180), `icon-192.png`, `icon-512.png`.
+
+- [ ] **Privacy-friendly analytics.** Plausible or Fathom. ~$9/mo. Gives daily-actives, retention, source-of-traffic.
+
+- [ ] **HelpModal content review.** The StartScreen handles first-time onboarding now, but the in-game HelpModal (via `?` button) should be reviewed for clarity.
+
+- [ ] **One-line stats disclosure.** Add "Your stats are saved on this device" to the HelpModal so users don't ask why their phone streak doesn't sync to laptop.
+
+---
+
+## 3. Low-Risk / Post-Launch
+
+Defer until you see traffic:
+
+- [ ] Sound effects (snap-in click, win chime, toggleable)
+- [ ] Standalone stats modal (separate from win modal)
+- [ ] React error boundary
+- [ ] Lighthouse performance audit
+- [ ] Animated tutorial overlay (if drop-off data warrants)
+- [ ] Manual pause button (most won't use)
+- [ ] Cross-tab same-window focus/blur handling (rare edge case)
+
+---
+
+## 4. Deployment Procedure (Vercel)
+
+When ready:
+
+1. [ ] Make sure the `main` branch is up to date with the latest commits.
+2. [ ] Sign up at vercel.com (free tier).
+3. [ ] Click "Import Project" → connect GitHub → select `BlockApp` repo.
+4. [ ] Vercel auto-detects Vite, sets build command to `npm run build`, output dir `dist/`.
+5. [ ] **Important:** set "Root Directory" to `blockle` (since the Vite project lives in a subfolder).
+6. [ ] Click Deploy. ~2 minutes. Vercel returns a URL like `cobble-xxxx.vercel.app`.
+7. [ ] Open URL on your phone. Test.
+8. [ ] (Later) Add custom domain via Vercel's UI → update DNS at your registrar.
 
 ---
 
 ## 5. Explicitly Deferred (do NOT do for v1)
-
-These come up eventually but are premature for the Wordle-precedent launch:
 
 - Cross-device sync / accounts / login
 - Leaderboards / friend comparisons
@@ -115,11 +129,10 @@ These come up eventually but are premature for the Wordle-precedent launch:
 - A/B testing platform
 - Backend of any kind
 
-Wordle had **none** of these at peak virality. Add them only when a clear user signal demands it.
-
 ---
 
 ## Tracking
 
 Last updated: 2026-05-19
-Next milestone: finish §1 (must-fix), then §2 (high-value), then deploy.
+Current branch: `test-win-flow` (pushed to `origin`)
+Next milestone: lock variant 2 default → merge to `main` → deploy to Vercel → test on phone

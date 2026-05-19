@@ -51,7 +51,12 @@ export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements,
           <span className="serif">{stats.totalSolved}</span> solved
         </p>
 
-        <button className="takeover__share" onClick={() => shareResult(shareText)}>
+        <button
+          className="takeover__share takeover__share--disabled"
+          disabled
+          title="Share coming soon"
+          aria-label="Share coming soon"
+        >
           Share result
         </button>
 

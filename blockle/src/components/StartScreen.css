@@ -1,0 +1,118 @@
+.start-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 90;
+  animation: startScreen-fade 0.28s ease;
+}
+
+@keyframes startScreen-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.start-screen__card {
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.start-screen__brand {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+}
+
+.start-screen__dot {
+  color: var(--bad);
+}
+
+.start-screen__tagline {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+}
+
+.start-screen__meta {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.start-screen__num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.start-screen__date {
+  font-size: 13px;
+  color: var(--ink-mute);
+}
+
+.start-screen__streak {
+  margin-top: 18px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.start-screen__rules {
+  margin-top: 28px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 280px;
+}
+
+.start-screen__button {
+  margin-top: 28px;
+  width: 100%;
+  max-width: 280px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 16px 20px;
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.start-screen__button:hover { background: #2C2620; }
+.start-screen__button:active { transform: translateY(1px); }
+
+.start-screen__help {
+  margin-top: 16px;
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.start-screen__help:hover { color: var(--ink); }

@@ -109,9 +109,19 @@
   padding: 16px 18px;
   border-radius: 10px;
   transition: background 0.15s ease, transform 0.1s ease;
+  border: none;
+  cursor: pointer;
 }
-.takeover__share:hover { background: #2C2620; }
-.takeover__share:active { transform: translateY(1px); }
+.takeover__share:hover:not(:disabled) { background: #2C2620; }
+.takeover__share:active:not(:disabled) { transform: translateY(1px); }
+
+.takeover__share--disabled,
+.takeover__share:disabled {
+  background: var(--cream-deep);
+  color: var(--ink-mute);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
 .takeover__countdown {
   margin-top: 16px;

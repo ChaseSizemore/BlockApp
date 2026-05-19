@@ -16,6 +16,7 @@ import WinScoreOnly from './components/WinScoreOnly.jsx';
 import WinPlaySignature from './components/WinPlaySignature.jsx';
 import Confetti from './components/Confetti.jsx';
 import HelpModal from './components/HelpModal.jsx';
+import StartScreen from './components/StartScreen.jsx';
 import DevPanel from './components/DevPanel.jsx';
 import { generatePuzzleForDay, generatePuzzleForSeed, getTodaysDay, todayLabel, ROWS, COLS } from './game/puzzle.js';
 import { PIECE_ORIENTATIONS, bbox } from './game/pentominoes.js';
@@ -161,30 +162,85 @@ export default function App() {
 
   // Timer.
   const [elapsedMs, setElapsedMs] = useState(progress.elapsedMs || 0);
-  const tickRef = useRef(null);
+
+  // Fair timer: tracks ACTIVE play time only. Auto-pauses when the tab is
+  // hidden, resumes silently when visible. Persists every 5 ticks (5s) and
+  // on pause/beforeunload/unmount so a crash loses at most a few seconds.
   useEffect(() => {
     if (progress.solved) return;
     if (!progress.startedAt) return;
-    const baseElapsed = progress.elapsedMs || 0;
-    const startStamp = Date.now() - baseElapsed;
-    tickRef.current = setInterval(() => {
-      setElapsedMs(Date.now() - startStamp);
-    }, 1000);
-    return () => clearInterval(tickRef.current);
-  }, [progress.solved, progress.startedAt]);
 
-  useEffect(() => {
-    if (progress.solved || !progress.startedAt) return;
-    const id = setInterval(() => {
-      setProgress((p) => ({ ...p, elapsedMs }));
-    }, 3000);
-    return () => clearInterval(id);
-  }, [elapsedMs, progress.solved, progress.startedAt, setProgress]);
+    let baseElapsed = progress.elapsedMs || 0;
+    let sessionStart = Date.now();
+    let interval = null;
+    let isPaused = document.visibilityState === 'hidden';
+    let tickCount = 0;
 
-  const startTimerIfNeeded = () => {
-    if (!progress.startedAt) {
-      setProgress((p) => ({ ...p, startedAt: Date.now() }));
-    }
+    const computeNow = () => baseElapsed + (Date.now() - sessionStart);
+
+    const persist = (elapsed) => {
+      setProgress((p) => (p.elapsedMs === elapsed ? p : { ...p, elapsedMs: elapsed }));
+    };
+
+    const tick = () => {
+      tickCount++;
+      const elapsed = computeNow();
+      setElapsedMs(elapsed);
+      if (tickCount % 5 === 0) persist(elapsed);
+    };
+
+    const startInterval = () => {
+      if (interval) return;
+      interval = setInterval(tick, 1000);
+    };
+
+    const stopInterval = () => {
+      if (!interval) return;
+      clearInterval(interval);
+      interval = null;
+    };
+
+    const pause = () => {
+      if (isPaused) return;
+      const elapsed = computeNow();
+      setElapsedMs(elapsed);
+      persist(elapsed);
+      baseElapsed = elapsed;
+      stopInterval();
+      isPaused = true;
+    };
+
+    const resume = () => {
+      if (!isPaused) return;
+      sessionStart = Date.now();
+      isPaused = false;
+      startInterval();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') pause();
+      else resume();
+    };
+
+    const onBeforeUnload = () => {
+      persist(computeNow());
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    if (!isPaused) startInterval();
+
+    return () => {
+      stopInterval();
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      persist(computeNow());
+    };
+  }, [progress.solved, progress.startedAt, setProgress]);
+
+  const startPuzzle = () => {
+    setProgress((p) => ({ ...p, startedAt: Date.now() }));
   };
 
   // Helpers.
@@ -359,7 +415,6 @@ export default function App() {
           cellSize: g.cellSize,
           gap: g.gap,
         });
-        startTimerIfNeeded();
       } else {
         setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : null));
       }
@@ -506,7 +561,8 @@ export default function App() {
   // Win-flow prototype selection (dev only). Default: classic modal.
   const [winVariant, setWinVariant] = useState(() => {
     const v = Number(localStorage.getItem('cobble:dev:winVariant'));
-    return v >= 1 && v <= 7 ? v : 1;
+    // Default to Variant 2 (Takeover) — the chosen launch variant.
+    return v >= 1 && v <= 7 ? v : 2;
   });
   const changeWinVariant = (v) => {
     setWinVariant(v);
@@ -715,6 +771,16 @@ export default function App() {
       )}
 
       {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
+
+      {!progress.startedAt && !progress.solved && (
+        <StartScreen
+          day={today.day}
+          dateLabel={today.dateLabel}
+          streak={stats.currentStreak}
+          onStart={startPuzzle}
+          onHelp={() => setHelpOpen(true)}
+        />
+      )}
 
       {import.meta.env.DEV && (
         <DevPanel
