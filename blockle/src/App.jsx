@@ -159,6 +159,25 @@ export default function App() {
 
   const boardRef = useRef(null);
   const boardCellSizeRef = useRef(0);
+  const trayRef = useRef(null);
+
+  // True while dragging and the pointer is over (or near) the tray section.
+  // Drives the tray's highlight + the snap-back drop behaviour.
+  const [dragOverTray, setDragOverTray] = useState(false);
+
+  // Returns true if the pointer (clientX, clientY) is inside the tray's
+  // bounding box, expanded by a margin of generosity.
+  const isPointerOverTray = (clientX, clientY, margin = 32) => {
+    const el = trayRef.current;
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return (
+      clientX >= r.left - margin &&
+      clientX <= r.right + margin &&
+      clientY >= r.top - margin &&
+      clientY <= r.bottom + margin
+    );
+  };
 
   // Timer.
   const [elapsedMs, setElapsedMs] = useState(progress.elapsedMs || 0);
@@ -417,6 +436,7 @@ export default function App() {
         });
       } else {
         setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : null));
+        setDragOverTray(isPointerOverTray(e.clientX, e.clientY));
       }
     };
     const onUp = (e) => {
@@ -461,26 +481,21 @@ export default function App() {
           ...p,
           placements: { ...p.placements, [id]: { letter, cells: placedCells, orient } },
         }));
+      } else if (isPointerOverTray(e.clientX, e.clientY)) {
+        // Dropped on (or near) the tray: snap the piece back. It was already
+        // removed from placements/floating at drag-start, so doing nothing
+        // here leaves it in the default "tray" state.
       } else {
-        // No valid board placement. If the user dropped on the tray section,
-        // snap the piece back into the tray (no floating state). Otherwise,
-        // become floating at the drop point.
-        // DragOverlay has pointer-events: none so elementFromPoint sees what's underneath.
-        const elementAtDrop = document.elementFromPoint(e.clientX, e.clientY);
-        const droppedOnTray = elementAtDrop?.closest?.('.tray');
-        if (droppedOnTray) {
-          // Piece was already removed from placements/floating at drag-start;
-          // doing nothing leaves it absent from both = back in the tray.
-        } else {
-          const x = e.clientX - g.grabDX;
-          const y = e.clientY - g.grabDY;
-          setProgress((p) => ({
-            ...p,
-            floating: { ...p.floating, [id]: { letter, x, y, orient } },
-          }));
-        }
+        // No valid board placement, not over tray → become floating at the drop point.
+        const x = e.clientX - g.grabDX;
+        const y = e.clientY - g.grabDY;
+        setProgress((p) => ({
+          ...p,
+          floating: { ...p.floating, [id]: { letter, x, y, orient } },
+        }));
       }
       setDrag(null);
+      setDragOverTray(false);
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
@@ -704,10 +719,12 @@ export default function App() {
           onCancel={(e) => { e?.stopPropagation?.(); cancelSelection(); }}
         />
         <Tray
+          ref={trayRef}
           pieces={trayPieces}
           remaining={Math.max(0, remaining)}
           selectedId={selectedId}
           trayOrients={trayOrients}
+          dropActive={drag !== null && dragOverTray}
           onPiecePointerDown={onPiecePointerDown}
         />
       </div>

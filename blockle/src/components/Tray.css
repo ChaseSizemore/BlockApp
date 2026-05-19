@@ -5,6 +5,15 @@
   border-radius: 10px;
   padding: 8px 10px 10px;
   flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Highlighted state when the user is dragging a piece toward (or over) the tray.
+   Signals "drop here to send the piece back." */
+.tray--drop-active {
+  background: #EBE4D0;
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 
 .tray__head {

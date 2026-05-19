@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import Piece from './Piece.jsx';
 import { PENTOMINOES, PIECE_ORIENTATIONS, bbox } from '../game/pentominoes.js';
 import './Tray.css';
@@ -5,9 +6,15 @@ import './Tray.css';
 const TRAY_CELL = 14;
 const TRAY_GAP = 2;
 
-export default function Tray({ pieces, remaining, selectedId, trayOrients, onPiecePointerDown }) {
+const Tray = forwardRef(function Tray(
+  { pieces, remaining, selectedId, trayOrients, dropActive = false, onPiecePointerDown },
+  ref,
+) {
   return (
-    <div className="tray">
+    <div
+      ref={ref}
+      className={`tray ${dropActive ? 'tray--drop-active' : ''}`}
+    >
       <div className="tray__head">
         <span className="tray__title">Your blocks</span>
         <span className="tray__count">{remaining} LEFT</span>
@@ -15,7 +22,6 @@ export default function Tray({ pieces, remaining, selectedId, trayOrients, onPie
       <div className="tray__row">
         {pieces.map((p) => {
           const isSelected = selectedId === p.id;
-          // Use the piece's current orientation (tray pieces can be rotated before dragging)
           const orient = trayOrients?.[p.id] || PIECE_ORIENTATIONS[p.letter][0];
           const { h, w } = bbox(orient);
           const width = w * TRAY_CELL + (w - 1) * TRAY_GAP;
@@ -51,6 +57,7 @@ export default function Tray({ pieces, remaining, selectedId, trayOrients, onPie
       </div>
     </div>
   );
-}
+});
 
+export default Tray;
 export { TRAY_CELL, TRAY_GAP };
