@@ -650,6 +650,11 @@ export default function App() {
 
   return (
     <div className="app" onPointerDown={onBackgroundPointerDown}>
+      <div className="rotate-prompt" aria-hidden="true">
+        <div className="rotate-prompt__icon" aria-hidden="true">📱</div>
+        <div className="rotate-prompt__title">Cobble is portrait only</div>
+        <p className="rotate-prompt__text">Please rotate your phone upright to keep playing.</p>
+      </div>
       <div className="app__shell" onPointerDown={(e) => { /* don't deselect on shell taps that hit pieces */ }}>
         <Header
           day={today.day}

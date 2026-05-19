@@ -36,3 +36,56 @@ html, body, #root {
   justify-content: center;
   width: 100%;
 }
+
+/* Landscape-on-phone blocker: when the viewport is too short to fit the layout
+   (typically: phone rotated to landscape), hide the app and show a "rotate to
+   portrait" overlay. Triggers below 500px height — that's the threshold where
+   the board + controls + tray can't all fit. */
+.rotate-prompt {
+  display: none;
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .app__shell {
+    display: none;
+  }
+  .rotate-prompt {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+    z-index: 1000;
+  }
+}
+
+.rotate-prompt__icon {
+  font-size: 56px;
+  margin-bottom: 18px;
+  animation: rotate-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes rotate-bob {
+  0%, 100% { transform: rotate(-90deg); }
+  50% { transform: rotate(0deg); }
+}
+
+.rotate-prompt__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.rotate-prompt__text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  max-width: 280px;
+  line-height: 1.5;
+}
