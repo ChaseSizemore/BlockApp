@@ -4,20 +4,22 @@ import {
   fmt,
   fmtCountdown,
   nextMidnightDelta,
-  buildEmojiGrid,
-  buildShareText,
+  buildHintOnlyGrid,
   shareResult,
 } from '../lib/winHelpers.js';
 
-export default function WinModal({ day, elapsedMs, stats, puzzle, placements }) {
+// Variant 5: same shell as Classic (variant 1), but the emoji grid only reveals
+// the hint cells (which are already public to anyone who plays the same day).
+// Non-spoilery. This is the share artifact I'd actually ship.
+export default function WinHintGrid({ day, elapsedMs, stats, puzzle }) {
   const [countdown, setCountdown] = useState(nextMidnightDelta());
   useEffect(() => {
     const id = setInterval(() => setCountdown(nextMidnightDelta()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const grid = buildEmojiGrid(puzzle, placements);
-  const text = buildShareText(day, elapsedMs, grid);
+  const grid = buildHintOnlyGrid(puzzle);
+  const shareText = `COBBLE #${day} — ${fmt(elapsedMs)}\n${grid}\n🔥 ${stats.currentStreak} day streak · cobble.game`;
 
   return (
     <div className="win">
@@ -42,8 +44,11 @@ export default function WinModal({ day, elapsedMs, stats, puzzle, placements }) 
         </div>
 
         <pre className="win__grid">{grid}</pre>
+        <p style={{ fontSize: 10, color: 'var(--ink-mute)', marginTop: -4, marginBottom: 8 }}>
+          Only the hints are shown — your friends won't be spoiled.
+        </p>
 
-        <button className="win__share" onClick={() => shareResult(text)}>
+        <button className="win__share" onClick={() => shareResult(shareText)}>
           Share result
         </button>
 

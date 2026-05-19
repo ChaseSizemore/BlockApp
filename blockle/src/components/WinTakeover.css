@@ -1,0 +1,121 @@
+.takeover {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 32px;
+  z-index: 100;
+  animation: takeover-fade 0.32s ease;
+}
+
+.takeover__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: 26px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.takeover__close:hover {
+  background: var(--cream-deep);
+  color: var(--ink);
+}
+
+@keyframes takeover-fade {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.takeover__inner {
+  max-width: 440px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.takeover__top {
+  margin-bottom: 14px;
+}
+
+.takeover__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--ink-mute);
+}
+
+.takeover__sub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: var(--bad);
+}
+
+.takeover__time {
+  font-size: 88px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 16px;
+}
+
+.takeover__board {
+  margin: 0 0 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.takeover__stats {
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+
+.takeover__stats .serif {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.takeover__dot {
+  margin: 0 8px;
+  color: var(--ink-mute);
+}
+
+.takeover__share {
+  width: 100%;
+  max-width: 320px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 16px 18px;
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.takeover__share:hover { background: #2C2620; }
+.takeover__share:active { transform: translateY(1px); }
+
+.takeover__countdown {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}

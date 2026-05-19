@@ -69,6 +69,124 @@ export function solve(board, pieces, placements = []) {
   return null;
 }
 
+// Returns the first solution found AND the number of search nodes visited
+// (a rough proxy for "computational difficulty"). Used by the difficulty scorer.
+// Optional budget cap so pathological starts don't explode the runtime.
+export function solveWithBranchCount(board, pieces, budgetMs = 500) {
+  let branches = 0;
+  const deadline = Date.now() + budgetMs;
+  let timedOut = false;
+  function rec(remaining, placements) {
+    if (Date.now() > deadline) { timedOut = true; return null; }
+    branches++;
+    if (remaining.length === 0) {
+      if (firstEmpty(board) === null) return placements.slice();
+      return null;
+    }
+    const empty = firstEmpty(board);
+    if (empty === null) return null;
+    const [er, ec] = empty;
+    for (let pi = 0; pi < remaining.length; pi++) {
+      if (timedOut) return null;
+      const letter = remaining[pi];
+      const orients = PIECE_ORIENTATIONS[letter];
+      for (let oi = 0; oi < orients.length; oi++) {
+        if (timedOut) return null;
+        const placed = tryPlace(board, orients[oi], er, ec, letter);
+        if (placed) {
+          placements.push({ letter, cells: placed });
+          const next = remaining.slice(0, pi).concat(remaining.slice(pi + 1));
+          const result = rec(next, placements);
+          if (result) return result;
+          placements.pop();
+          unplace(board, placed);
+        }
+      }
+    }
+    return null;
+  }
+  const result = rec(pieces, []);
+  return { result, branches, timedOut };
+}
+
+// Budgeted variant: aborts if elapsed time exceeds budgetMs.
+// Returns { result, timedOut }.
+export function solveWithBudget(board, pieces, budgetMs = 800) {
+  const deadline = Date.now() + budgetMs;
+  let timedOut = false;
+  function rec(remaining, placements) {
+    if (Date.now() > deadline) { timedOut = true; return null; }
+    if (remaining.length === 0) {
+      if (firstEmpty(board) === null) return placements.slice();
+      return null;
+    }
+    const empty = firstEmpty(board);
+    if (empty === null) return null;
+    const [er, ec] = empty;
+    for (let pi = 0; pi < remaining.length; pi++) {
+      if (timedOut) return null;
+      const letter = remaining[pi];
+      const orients = PIECE_ORIENTATIONS[letter];
+      for (let oi = 0; oi < orients.length; oi++) {
+        if (timedOut) return null;
+        const placed = tryPlace(board, orients[oi], er, ec, letter);
+        if (placed) {
+          placements.push({ letter, cells: placed });
+          const next = remaining.slice(0, pi).concat(remaining.slice(pi + 1));
+          const result = rec(next, placements);
+          if (result) return result;
+          placements.pop();
+          unplace(board, placed);
+        }
+      }
+    }
+    return null;
+  }
+  const result = rec(pieces, []);
+  return { result, timedOut };
+}
+
 export function emptyBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+}
+
+// Count all distinct completions of `board` using `pieces` (in any order/orientation).
+// Capped at `maxCount` AND budgetMs so deeply ambiguous starts can't hang.
+// Returns { count: number, capped: boolean, timedOut: boolean }.
+export function countCompletions(board, pieces, maxCount = 1000, budgetMs = 500) {
+  let count = 0;
+  let capped = false;
+  let timedOut = false;
+  const deadline = Date.now() + budgetMs;
+
+  function rec(remaining) {
+    if (timedOut || Date.now() > deadline) { timedOut = true; return; }
+    if (count >= maxCount) {
+      capped = true;
+      return;
+    }
+    if (remaining.length === 0) {
+      if (firstEmpty(board) === null) count++;
+      return;
+    }
+    const empty = firstEmpty(board);
+    if (empty === null) return;
+    const [er, ec] = empty;
+    for (let pi = 0; pi < remaining.length; pi++) {
+      if (count >= maxCount) return;
+      const letter = remaining[pi];
+      const orients = PIECE_ORIENTATIONS[letter];
+      for (let oi = 0; oi < orients.length; oi++) {
+        const placed = tryPlace(board, orients[oi], er, ec, letter);
+        if (placed) {
+          const next = remaining.slice(0, pi).concat(remaining.slice(pi + 1));
+          rec(next);
+          unplace(board, placed);
+          if (count >= maxCount) return;
+        }
+      }
+    }
+  }
+  rec(pieces);
+  return { count, capped, timedOut };
 }

@@ -9,15 +9,6 @@
   pointer-events: auto;
 }
 
-.floating-piece--selected {
-  filter: drop-shadow(0 0 0 2px var(--ink)) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.18));
-}
-
-.floating-piece--selected::after {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 8px;
-  border: 2px solid var(--ink);
-  pointer-events: none;
-}
+/* Selection visual lives on the Piece itself (drop-shadow outline) — no wrapper
+   pseudo-element here, since the .floating-piece div has zero intrinsic size
+   and an inset border would render as a stray dot at the anchor point. */

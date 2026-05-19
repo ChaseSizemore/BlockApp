@@ -1,0 +1,133 @@
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 26, 20, 0.22);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  animation: sheet-fade 0.22s ease;
+}
+
+@keyframes sheet-fade {
+  from { background-color: rgba(31, 26, 20, 0); }
+  to { background-color: rgba(31, 26, 20, 0.22); }
+}
+
+.sheet {
+  width: 100%;
+  max-width: 460px;
+  background: var(--cream);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 10px 22px 24px;
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.18);
+  animation: sheet-slide 0.32s cubic-bezier(0.18, 0.9, 0.3, 1.0);
+}
+
+@keyframes sheet-slide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet__handle {
+  width: 40px;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sheet__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sheet__kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--bad);
+}
+
+.sheet__time {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet__streak {
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet__grid {
+  margin: 0 0 14px;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 18px;
+  line-height: 1.05;
+  white-space: pre;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.sheet__statsRow {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.sheet__statsRow .serif {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sheet__sep {
+  color: var(--ink-mute);
+}
+
+.sheet__share {
+  margin-top: 10px;
+  width: 100%;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 14px;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+.sheet__share:hover { background: #2C2620; }
+
+.sheet__countdown {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}

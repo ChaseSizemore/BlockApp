@@ -8,10 +8,19 @@ import Controls from './components/Controls.jsx';
 import FloatingLayer, { FLOATING_CELL, FLOATING_GAP } from './components/FloatingLayer.jsx';
 import DragOverlay from './components/DragOverlay.jsx';
 import WinModal from './components/WinModal.jsx';
+import WinTakeover from './components/WinTakeover.jsx';
+import WinBottomSheet from './components/WinBottomSheet.jsx';
+import WinInline from './components/WinInline.jsx';
+import WinHintGrid from './components/WinHintGrid.jsx';
+import WinScoreOnly from './components/WinScoreOnly.jsx';
+import WinPlaySignature from './components/WinPlaySignature.jsx';
 import Confetti from './components/Confetti.jsx';
 import HelpModal from './components/HelpModal.jsx';
-import { generatePuzzleForDay, getTodaysDay, todayLabel, ROWS, COLS } from './game/puzzle.js';
+import DevPanel from './components/DevPanel.jsx';
+import { generatePuzzleForDay, generatePuzzleForSeed, getTodaysDay, todayLabel, ROWS, COLS } from './game/puzzle.js';
 import { PIECE_ORIENTATIONS, bbox } from './game/pentominoes.js';
+import { countCompletions, emptyBoard } from './game/solver.js';
+import { scoreDifficulty } from './game/difficulty.js';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 
 const DRAG_THRESHOLD = 8; // px
@@ -38,24 +47,74 @@ const INITIAL_STATS = {
   lastSolvedDayKey: null,
 };
 
+const INITIAL_PROGRESS = {
+  placements: {},
+  floating: {},
+  solved: false,
+  elapsedMs: 0,
+  startedAt: null,
+};
+
 export default function App() {
   const [today] = useState(() => ({
     day: getTodaysDay(),
     dateLabel: todayLabel(),
   }));
-  const dayKey = `blockle:v3:day:${today.day}`;
+  // Optional dev override: a custom seed replaces the day's deterministic puzzle.
+  const [overrideSeed, setOverrideSeed] = useState(null);
+
+  // One-time cleanup of stale override keys (from earlier sessions when overrides
+  // were persisted to localStorage). Runs once per page load.
+  useEffect(() => {
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('cobble:v1:override:')) localStorage.removeItem(k);
+      }
+    } catch {}
+  }, []);
+
+  // Stable key for the daily puzzle's progress. Overrides DON'T touch localStorage
+  // (would churn keys on every regenerate); they use an in-memory state slot below.
+  const dayKey = `cobble:v1:day:${today.day}`;
 
   const puzzle = useMemo(() => {
+    if (overrideSeed !== null) {
+      // Override puzzles aren't cached; regenerated fresh each session.
+      return generatePuzzleForSeed(overrideSeed);
+    }
     try {
-      const cached = localStorage.getItem(`blockle:v3:puzzle:${today.day}`);
+      const cached = localStorage.getItem(`cobble:v1:puzzle:${today.day}`);
       if (cached) return JSON.parse(cached);
     } catch {}
     const p = generatePuzzleForDay(today.day);
     try {
-      localStorage.setItem(`blockle:v3:puzzle:${today.day}`, JSON.stringify(p));
+      localStorage.setItem(`cobble:v1:puzzle:${today.day}`, JSON.stringify(p));
     } catch {}
     return p;
-  }, [today.day]);
+  }, [today.day, overrideSeed]);
+
+  // Completion counting is disabled for now (the difficulty scorer covers it).
+  const completionInfo = { count: null, capped: false, elapsedMs: 0, computing: false };
+
+  // Difficulty scorer — runs off the render path. Computes once per puzzle.
+  const [difficulty, setDifficulty] = useState({ computing: true });
+  useEffect(() => {
+    let cancelled = false;
+    setDifficulty({ computing: true });
+    const id = setTimeout(() => {
+      if (cancelled) return;
+      try {
+        const t0 = performance.now();
+        const score = scoreDifficulty(puzzle);
+        const elapsedMs = Math.round(performance.now() - t0);
+        if (!cancelled) setDifficulty({ ...score, elapsedMs, computing: false });
+      } catch (e) {
+        if (!cancelled) setDifficulty({ computing: false, error: String(e) });
+      }
+    }, 50);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [puzzle]);
 
   const hints = useMemo(() => {
     return puzzle.hintIndices.map((i) => ({
@@ -73,15 +132,14 @@ export default function App() {
       .filter((_, i) => !hintIndexSet.has(i));
   }, [puzzle, hintIndexSet]);
 
-  const [progress, setProgress] = useLocalStorage(dayKey, {
-    placements: {},   // id -> { letter, cells, orient }
-    floating: {},     // id -> { letter, x, y, orient }
-    solved: false,
-    elapsedMs: 0,
-    startedAt: null,
-  });
+  // Daily progress persists to localStorage (stable key). Override progress is
+  // transient — lives in memory only, cleared on refresh.
+  const [dailyProgress, setDailyProgress] = useLocalStorage(dayKey, INITIAL_PROGRESS);
+  const [overrideProgress, setOverrideProgress] = useState(INITIAL_PROGRESS);
+  const progress = overrideSeed === null ? dailyProgress : overrideProgress;
+  const setProgress = overrideSeed === null ? setDailyProgress : setOverrideProgress;
 
-  const [stats, setStats] = useLocalStorage('blockle:v3:stats', INITIAL_STATS);
+  const [stats, setStats] = useLocalStorage('cobble:v1:stats', INITIAL_STATS);
 
   // Tray pieces remember their current orientation (in-memory; doesn't persist).
   const [trayOrients, setTrayOrients] = useState({});
@@ -429,7 +487,7 @@ export default function App() {
 
   const reset = () => {
     if (!window.confirm("Reset today's puzzle?")) return;
-    setProgress({ placements: {}, floating: {}, solved: false, elapsedMs: 0, startedAt: null });
+    setProgress(INITIAL_PROGRESS);
     setSelectedId(null);
     setDrag(null);
     setTrayOrients({});
@@ -437,6 +495,74 @@ export default function App() {
   };
 
   const [helpOpen, setHelpOpen] = useState(false);
+
+  // In-memory dismiss state for the win modal. Lets the player look at their
+  // solved board without the modal in the way. Reopen via the "View summary"
+  // button. Refreshing brings the modal back (state is not persisted).
+  const [winDismissed, setWinDismissed] = useState(false);
+  // Reset dismiss when the puzzle changes or the win state flips.
+  useEffect(() => { setWinDismissed(false); }, [puzzle, progress.solved]);
+
+  // Win-flow prototype selection (dev only). Default: classic modal.
+  const [winVariant, setWinVariant] = useState(() => {
+    const v = Number(localStorage.getItem('cobble:dev:winVariant'));
+    return v >= 1 && v <= 7 ? v : 1;
+  });
+  const changeWinVariant = (v) => {
+    setWinVariant(v);
+    try { localStorage.setItem('cobble:dev:winVariant', String(v)); } catch {}
+  };
+
+  const autoSolve = () => {
+    const newPlacements = {};
+    puzzle.solution.forEach((s, i) => {
+      if (hintIndexSet.has(i)) return;
+      newPlacements[i] = {
+        letter: s.letter,
+        cells: s.cells,
+        orient: normalizeCells(s.cells),
+      };
+    });
+    setProgress((p) => ({
+      ...p,
+      placements: newPlacements,
+      floating: {},
+      startedAt: p.startedAt || Date.now(),
+    }));
+    setSelectedId(null);
+    setDrag(null);
+  };
+
+  const devReset = () => {
+    setProgress(INITIAL_PROGRESS);
+    setSelectedId(null);
+    setDrag(null);
+    setTrayOrients({});
+    setElapsedMs(0);
+  };
+
+  // Generate a brand new starting position with a random seed.
+  // The deterministic per-day puzzle becomes overridden until reset.
+  const regeneratePuzzle = () => {
+    const seed = (Math.random() * 0x7fffffff) >>> 0;
+    setOverrideSeed(seed);
+    setProgress(INITIAL_PROGRESS);
+    setSelectedId(null);
+    setDrag(null);
+    setTrayOrients({});
+    setElapsedMs(0);
+  };
+
+  // Drop the override and return to today's deterministic puzzle.
+  const restoreDailyPuzzle = () => {
+    if (overrideSeed === null) return;
+    setOverrideSeed(null);
+    setProgress(INITIAL_PROGRESS);
+    setSelectedId(null);
+    setDrag(null);
+    setTrayOrients({});
+    setElapsedMs(0);
+  };
 
   const placedPieces = Object.entries(progress.placements).map(([id, p]) => ({
     id: Number(id),
@@ -475,7 +601,20 @@ export default function App() {
           streak={stats.currentStreak}
           onHelp={(e) => { e?.stopPropagation?.(); setHelpOpen(true); }}
         />
-        <Timer elapsedMs={progress.solved ? progress.elapsedMs : elapsedMs} />
+        <Timer
+          elapsedMs={progress.solved ? progress.elapsedMs : elapsedMs}
+          solved={progress.solved && winDismissed}
+          onReopenSummary={() => setWinDismissed(false)}
+        />
+        {progress.solved && winVariant === 4 && (
+          <WinInline
+            day={today.day}
+            elapsedMs={progress.elapsedMs}
+            stats={stats}
+            puzzle={puzzle}
+            placements={progress.placements}
+          />
+        )}
         <div className="app__board-area">
           <Board
             rows={ROWS}
@@ -512,22 +651,89 @@ export default function App() {
 
       <DragOverlay drag={drag} />
 
-      {progress.solved && (
+      {progress.solved && !winDismissed && (
         <>
           <Confetti />
-          <WinModal
-            day={today.day}
-            dateLabel={today.dateLabel}
-            elapsedMs={progress.elapsedMs}
-            stats={stats}
-            puzzle={puzzle}
-            placements={progress.placements}
-            onClose={() => {}}
-          />
+          {winVariant === 1 && (
+            <WinModal
+              day={today.day}
+              dateLabel={today.dateLabel}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              puzzle={puzzle}
+              placements={progress.placements}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
+          {winVariant === 2 && (
+            <WinTakeover
+              day={today.day}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              puzzle={puzzle}
+              placements={progress.placements}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
+          {winVariant === 3 && (
+            <WinBottomSheet
+              day={today.day}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              puzzle={puzzle}
+              placements={progress.placements}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
+          {winVariant === 5 && (
+            <WinHintGrid
+              day={today.day}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              puzzle={puzzle}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
+          {winVariant === 6 && (
+            <WinScoreOnly
+              day={today.day}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
+          {winVariant === 7 && (
+            <WinPlaySignature
+              day={today.day}
+              elapsedMs={progress.elapsedMs}
+              stats={stats}
+              placements={progress.placements}
+              onClose={() => setWinDismissed(true)}
+            />
+          )}
         </>
       )}
 
       {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
+
+      {import.meta.env.DEV && (
+        <DevPanel
+          variant={winVariant}
+          onVariantChange={changeWinVariant}
+          onAutoSolve={autoSolve}
+          onReset={devReset}
+          onRegenerate={regeneratePuzzle}
+          onRestoreDaily={restoreDailyPuzzle}
+          solved={progress.solved}
+          completionCount={completionInfo.count}
+          completionCapped={completionInfo.capped}
+          completionElapsedMs={completionInfo.elapsedMs}
+          completionComputing={completionInfo.computing}
+          difficulty={difficulty}
+          puzzleIsOverride={overrideSeed !== null}
+          puzzleSeed={overrideSeed}
+        />
+      )}
     </div>
   );
 }

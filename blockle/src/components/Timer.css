@@ -1,6 +1,26 @@
 .tm {
   padding: 2px 0 4px;
   flex-shrink: 0;
+  display: block;
+  text-align: left;
+  background: transparent;
+  border: none;
+  width: 100%;
+}
+
+.tm--solved {
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.tm--solved:hover {
+  background: var(--cream-deep);
+}
+
+.tm--solved .tm__label {
+  color: var(--bad);
 }
 
 .tm__label {

@@ -1,0 +1,136 @@
+.psig {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 26, 20, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: psig-fade 0.22s ease;
+}
+
+@keyframes psig-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.psig__card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 26px 22px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  animation: psig-pop 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+@keyframes psig-pop {
+  from { transform: scale(0.94) translateY(6px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.psig__kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ink-mute);
+}
+
+.psig__time {
+  margin-top: 4px;
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.psig__signature {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: var(--cream-deep);
+  border-radius: 10px;
+  padding: 12px 8px;
+  border: 1px solid var(--line);
+}
+
+.psig__pip {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.psig__legend {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.06em;
+}
+
+.psig__sw {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.psig__sw--g { background: #4F8B3A; }
+.psig__sw--y { background: #D9A82B; }
+.psig__sw--r { background: #C84B36; }
+
+.psig__statsRow {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 14px 0 6px;
+}
+.psig__statsRow .serif {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.psig__sep {
+  color: var(--ink-mute);
+}
+
+.psig__share {
+  margin-top: 10px;
+  width: 100%;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.psig__share:hover { background: #2C2620; }
+
+.psig__countdown {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.psig__demoNote {
+  margin-top: 8px;
+  font-size: 9px;
+  color: var(--ink-mute);
+  font-style: italic;
+}

@@ -5,9 +5,9 @@ export default function Header({ day, dateLabel, streak, onHelp }) {
     <header className="hd">
       <div className="hd__left">
         <h1 className="serif hd__brand">
-          BLOCKLE<span className="hd__dot">.</span>
+          Cobble<span className="hd__dot">.</span>
         </h1>
-        <p className="hd__tagline">A DAILY BLOCK PUZZLE</p>
+        <p className="hd__tagline">A DAILY ARRANGEMENT</p>
       </div>
       <div className="hd__right">
         <button className="hd__help" onClick={onHelp} aria-label="How to play">

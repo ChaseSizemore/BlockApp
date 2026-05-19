@@ -23,11 +23,11 @@
 }
 
 .hd__brand {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
   line-height: 1;
   color: var(--ink);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
 }
 
 .hd__dot {

@@ -5,8 +5,10 @@ function darken(hex, factor = 0.72) {
   return `rgb(${Math.round(r * factor)},${Math.round(g * factor)},${Math.round(b * factor)})`;
 }
 
-// Render a pentomino as absolutely-positioned cells that bridge same-piece gaps.
-// `cells` is a list of [r, c] in BOARD coordinates. Position is relative to the board.
+// Render a piece as a set of small rectangles: cell body + per-direction bridges
+// + a corner fill only when the diagonal cell is in the piece too. This avoids
+// the "extra square" artifact that appeared at the inside concave corner of
+// L/N/Z-shaped pieces with the old "extend the box by gap" approach.
 export default function Piece({
   cells,
   color,
@@ -26,7 +28,6 @@ export default function Piece({
   const dark = darken(color, 0.7);
   const radius = 4;
 
-  // Bounding box for positioning the group container.
   let minR = Infinity, minC = Infinity, maxR = -Infinity, maxC = -Infinity;
   for (const [r, c] of cells) {
     if (r < minR) minR = r;
@@ -39,7 +40,37 @@ export default function Piece({
   const groupWidth = (maxC - minC + 1) * step - gap;
   const groupHeight = (maxR - minR + 1) * step - gap;
 
-  const cellNodes = cells.map(([r, c], i) => {
+  const interactive = variant === 'placed' || variant === 'floating';
+  const isHint = variant === 'hint';
+  const isPreview = variant === 'preview-good' || variant === 'preview-bad';
+
+  // Common style helpers.
+  const fillBg = isHint
+    ? `repeating-linear-gradient(45deg, ${color} 0 6px, ${darken(color, 0.55)} 6px 12px)`
+    : null;
+  const baseColor = isPreview && variant === 'preview-bad' ? 'var(--bad)' : color;
+  const baseOpacity = isPreview ? (variant === 'preview-good' ? 0.6 : 0.45) : (isHint ? 0.85 : 1);
+  const borderStyle = isHint ? 'dashed' : 'solid';
+
+  function basePartStyle(absX, absY, w, h) {
+    const s = {
+      position: 'absolute',
+      left: absX,
+      top: absY,
+      width: w,
+      height: h,
+      pointerEvents: interactive ? 'auto' : 'none',
+      opacity: baseOpacity,
+    };
+    if (fillBg) s.backgroundImage = fillBg;
+    else s.backgroundColor = baseColor;
+    return s;
+  }
+
+  const parts = [];
+  let keyCounter = 0;
+
+  for (const [r, c] of cells) {
     const top = has(r - 1, c);
     const right = has(r, c + 1);
     const bottom = has(r + 1, c);
@@ -47,60 +78,66 @@ export default function Piece({
 
     const x = (c - minC) * step;
     const y = (r - minR) * step;
-    const width = cellSize + (right ? gap : 0);
-    const height = cellSize + (bottom ? gap : 0);
 
+    // --- Body cell -----------------------------------------------------------
     const tl = !top && !left ? radius : 0;
     const tr = !top && !right ? radius : 0;
     const bl = !bottom && !left ? radius : 0;
     const br = !bottom && !right ? radius : 0;
+    const body = basePartStyle(x, y, cellSize, cellSize);
+    body.borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+    if (interactive || isHint) {
+      if (!top) body.borderTop = `2px ${borderStyle} ${dark}`;
+      if (!right) body.borderRight = `2px ${borderStyle} ${dark}`;
+      if (!bottom) body.borderBottom = `2px ${borderStyle} ${dark}`;
+      if (!left) body.borderLeft = `2px ${borderStyle} ${dark}`;
+    }
+    if (isPreview) {
+      body.outline = `2px solid ${variant === 'preview-good' ? 'var(--good)' : 'var(--bad)'}`;
+      body.outlineOffset = '-2px';
+    }
+    parts.push(<div key={keyCounter++} style={body} />);
 
-    const cellInteractive = variant === 'placed' || variant === 'floating';
-    const cellStyle = {
-      position: 'absolute',
-      left: x,
-      top: y,
-      width,
-      height,
-      backgroundColor: color,
-      borderRadius: `${tl}px ${tr}px ${br}px ${bl}px`,
-      pointerEvents: cellInteractive ? 'auto' : 'none',
-    };
-
-    if (variant === 'placed' || variant === 'floating') {
-      // 2px darker border on exterior sides only
-      if (!top) cellStyle.borderTop = `2px solid ${dark}`;
-      if (!right) cellStyle.borderRight = `2px solid ${dark}`;
-      if (!bottom) cellStyle.borderBottom = `2px solid ${dark}`;
-      if (!left) cellStyle.borderLeft = `2px solid ${dark}`;
-    } else if (variant === 'hint') {
-      cellStyle.backgroundColor = 'transparent';
-      cellStyle.backgroundImage = `repeating-linear-gradient(45deg, ${color} 0 6px, ${darken(color, 0.55)} 6px 12px)`;
-      cellStyle.opacity = 0.85;
-      if (!top) cellStyle.borderTop = `2px dashed ${dark}`;
-      if (!right) cellStyle.borderRight = `2px dashed ${dark}`;
-      if (!bottom) cellStyle.borderBottom = `2px dashed ${dark}`;
-      if (!left) cellStyle.borderLeft = `2px dashed ${dark}`;
-    } else if (variant === 'preview-good') {
-      cellStyle.opacity = 0.6;
-      cellStyle.outline = '2px solid var(--good)';
-      cellStyle.outlineOffset = '-2px';
-    } else if (variant === 'preview-bad') {
-      cellStyle.opacity = 0.45;
-      cellStyle.backgroundColor = 'var(--bad)';
-      cellStyle.outline = '2px solid var(--bad)';
-      cellStyle.outlineOffset = '-2px';
+    // --- Right bridge --------------------------------------------------------
+    if (right) {
+      const bridge = basePartStyle(x + cellSize, y, gap, cellSize);
+      // Above the bridge is empty unless BOTH (r-1, c) and (r-1, c+1) are in piece.
+      const aboveCovered = has(r - 1, c) && has(r - 1, c + 1);
+      const belowCovered = has(r + 1, c) && has(r + 1, c + 1);
+      if (interactive || isHint) {
+        if (!aboveCovered) bridge.borderTop = `2px ${borderStyle} ${dark}`;
+        if (!belowCovered) bridge.borderBottom = `2px ${borderStyle} ${dark}`;
+      }
+      parts.push(<div key={keyCounter++} style={bridge} />);
     }
 
-    return <div key={i} style={cellStyle} />;
-  });
+    // --- Bottom bridge -------------------------------------------------------
+    if (bottom) {
+      const bridge = basePartStyle(x, y + cellSize, cellSize, gap);
+      const leftCovered = has(r, c - 1) && has(r + 1, c - 1);
+      const rightCovered = has(r, c + 1) && has(r + 1, c + 1);
+      if (interactive || isHint) {
+        if (!leftCovered) bridge.borderLeft = `2px ${borderStyle} ${dark}`;
+        if (!rightCovered) bridge.borderRight = `2px ${borderStyle} ${dark}`;
+      }
+      parts.push(<div key={keyCounter++} style={bridge} />);
+    }
+
+    // --- Diagonal corner fill: only when the 2x2 block exists in the piece. --
+    // For L/N/Z shapes where the diagonal cell is missing, we deliberately
+    // leave this gap-sized square unfilled — that's what eliminates the bug.
+    if (right && bottom && has(r + 1, c + 1)) {
+      const corner = basePartStyle(x + cellSize, y + cellSize, gap, gap);
+      parts.push(<div key={keyCounter++} style={corner} />);
+    }
+  }
 
   const baseFilter =
-    variant === 'placed' ? 'drop-shadow(0 2px 0 rgba(0,0,0,0.06)) drop-shadow(0 4px 6px rgba(0,0,0,0.06))'
-    : variant === 'floating' ? 'drop-shadow(0 8px 14px rgba(0,0,0,0.18))'
+    variant === 'placed' ? 'drop-shadow(0 1px 0 rgba(0,0,0,0.05))'
+    : variant === 'floating' ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.10))'
     : 'none';
   const filter = selected
-    ? `${baseFilter === 'none' ? '' : baseFilter + ' '}drop-shadow(0 0 0 #1F1A14) drop-shadow(0 0 0 #1F1A14) drop-shadow(0 0 0 #1F1A14)`
+    ? `${baseFilter === 'none' ? '' : baseFilter + ' '}drop-shadow(0 0 0 #1F1A14) drop-shadow(0 0 0 #1F1A14)`
     : baseFilter;
 
   return (
@@ -113,15 +150,12 @@ export default function Piece({
         top: groupTop,
         width: groupWidth,
         height: groupHeight,
-        // Container is always pointer-transparent — only the actual cell rects
-        // accept pointer events. This prevents the bbox of an L/Y/N piece from
-        // intercepting taps meant for adjacent empty board cells.
         pointerEvents: 'none',
         filter,
         ...style,
       }}
     >
-      {cellNodes}
+      {parts}
     </div>
   );
 }

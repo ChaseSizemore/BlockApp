@@ -1,0 +1,172 @@
+.dev-panel {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  background: rgba(20, 18, 14, 0.92);
+  color: #F4EFE4;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  z-index: 200;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  min-width: 240px;
+}
+
+.dev-panel--mini {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(20, 18, 14, 0.78);
+  color: #F4EFE4;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  cursor: pointer;
+}
+
+.dev-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: rgba(244, 239, 228, 0.6);
+  margin-bottom: 8px;
+}
+
+.dev-panel__close {
+  width: 20px;
+  height: 20px;
+  color: rgba(244, 239, 228, 0.5);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.dev-panel__close:hover { color: #F4EFE4; }
+
+.dev-panel__stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(244, 239, 228, 0.06);
+  border-radius: 6px;
+  border: 1px solid rgba(244, 239, 228, 0.12);
+}
+
+.dev-panel__stat {
+  flex: 1;
+  min-width: 0;
+}
+
+.dev-panel__statValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #F4EFE4;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dev-panel__tier--easy   { color: #93D26B; }
+.dev-panel__tier--medium { color: #E5C24A; }
+.dev-panel__tier--hard   { color: #E58A4C; }
+.dev-panel__tier--expert { color: #E04B3F; }
+
+.dev-panel__statLabel {
+  margin-top: 2px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(244, 239, 228, 0.5);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dev-panel__row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.dev-panel__btn--primary {
+  background: rgba(80, 140, 255, 0.18);
+  border-color: rgba(120, 170, 255, 0.4);
+  color: #F4EFE4;
+}
+.dev-panel__btn--primary:hover:not(:disabled) {
+  background: rgba(80, 140, 255, 0.32);
+}
+
+.dev-panel__btn {
+  flex: 1;
+  background: rgba(244, 239, 228, 0.1);
+  color: #F4EFE4;
+  border: 1px solid rgba(244, 239, 228, 0.18);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.dev-panel__btn:hover:not(:disabled) {
+  background: rgba(244, 239, 228, 0.18);
+}
+.dev-panel__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dev-panel__variantRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-panel__lbl {
+  color: rgba(244, 239, 228, 0.5);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.dev-panel__variants {
+  display: flex;
+  gap: 4px;
+}
+
+.dev-panel__variant {
+  width: 24px;
+  height: 24px;
+  background: rgba(244, 239, 228, 0.08);
+  color: rgba(244, 239, 228, 0.7);
+  border: 1px solid rgba(244, 239, 228, 0.16);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.dev-panel__variant:hover {
+  background: rgba(244, 239, 228, 0.16);
+}
+.dev-panel__variant.is-active {
+  background: #F4EFE4;
+  color: #1F1A14;
+  border-color: #F4EFE4;
+}
+
+.dev-panel__variantLabel {
+  font-size: 10px;
+  color: rgba(244, 239, 228, 0.6);
+  flex: 1 1 100%;
+}
