@@ -462,13 +462,23 @@ export default function App() {
           placements: { ...p.placements, [id]: { letter, cells: placedCells, orient } },
         }));
       } else {
-        // No valid board placement → become floating at drop point.
-        const x = e.clientX - g.grabDX;
-        const y = e.clientY - g.grabDY;
-        setProgress((p) => ({
-          ...p,
-          floating: { ...p.floating, [id]: { letter, x, y, orient } },
-        }));
+        // No valid board placement. If the user dropped on the tray section,
+        // snap the piece back into the tray (no floating state). Otherwise,
+        // become floating at the drop point.
+        // DragOverlay has pointer-events: none so elementFromPoint sees what's underneath.
+        const elementAtDrop = document.elementFromPoint(e.clientX, e.clientY);
+        const droppedOnTray = elementAtDrop?.closest?.('.tray');
+        if (droppedOnTray) {
+          // Piece was already removed from placements/floating at drag-start;
+          // doing nothing leaves it absent from both = back in the tray.
+        } else {
+          const x = e.clientX - g.grabDX;
+          const y = e.clientY - g.grabDY;
+          setProgress((p) => ({
+            ...p,
+            floating: { ...p.floating, [id]: { letter, x, y, orient } },
+          }));
+        }
       }
       setDrag(null);
     };
