@@ -815,11 +815,11 @@ export default function App() {
         />
       )}
 
-      {/* Vercel telemetry — pass mode/debug explicitly because the SDKs' auto-detection
-          relies on process.env.NODE_ENV, which Vite doesn't populate the way Next.js does.
-          Without these props the SDK falls back to "development" mode and only logs to console. */}
-      <Analytics mode={import.meta.env.PROD ? 'production' : 'development'} />
-      <SpeedInsights debug={import.meta.env.DEV} />
+      {/* Vercel telemetry — hardcode props to avoid any Vite env-replacement weirdness.
+          Side effect: local dev events ALSO get sent to prod analytics; acceptable trade-off
+          while we debug why import.meta.env.PROD detection wasn't working. */}
+      <Analytics mode="production" debug={false} />
+      <SpeedInsights debug={false} />
 
       {/* DevPanel: build-time gate (Vite tree-shakes in prod) + runtime hostname
           check as belt-and-suspenders. Will not render on cobble.day under any
