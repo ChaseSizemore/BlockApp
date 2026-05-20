@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import './App.css';
 import Header from './components/Header.jsx';
 import Timer from './components/Timer.jsx';
@@ -813,7 +815,17 @@ export default function App() {
         />
       )}
 
-      {import.meta.env.DEV && (
+      {/* Vercel telemetry (no-ops in dev, only sends from production deployment) */}
+      <Analytics />
+      <SpeedInsights />
+
+      {/* DevPanel: build-time gate (Vite tree-shakes in prod) + runtime hostname
+          check as belt-and-suspenders. Will not render on cobble.day under any
+          condition; only on localhost during local dev. */}
+      {import.meta.env.DEV
+        && typeof window !== 'undefined'
+        && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        && (
         <DevPanel
           variant={winVariant}
           onVariantChange={changeWinVariant}
