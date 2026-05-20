@@ -20,6 +20,7 @@ import Confetti from './components/Confetti.jsx';
 import HelpModal from './components/HelpModal.jsx';
 import StartScreen from './components/StartScreen.jsx';
 import DevPanel from './components/DevPanel.jsx';
+import { playClick, playWin, isSoundEnabled, setSoundEnabled } from './lib/sound.js';
 import { generatePuzzleForDay, generatePuzzleForSeed, getTodaysDay, todayLabel, ROWS, COLS } from './game/puzzle.js';
 import { PIECE_ORIENTATIONS, bbox } from './game/pentominoes.js';
 import { countCompletions, emptyBoard } from './game/solver.js';
@@ -312,6 +313,7 @@ export default function App() {
         lastSolvedDayKey: today.day,
       }));
       setProgress((p) => ({ ...p, solved: true, elapsedMs: finalMs, solvedAt: Date.now() }));
+      playWin();
     }
   }, [board, progress.solved, elapsedMs, stats, today.day, setProgress, setStats]);
 
@@ -483,6 +485,7 @@ export default function App() {
           ...p,
           placements: { ...p.placements, [id]: { letter, cells: placedCells, orient } },
         }));
+        playClick();
       } else if (isPointerOverTray(e.clientX, e.clientY)) {
         // Dropped on (or near) the tray: snap the piece back. It was already
         // removed from placements/floating at drag-start, so doing nothing
@@ -577,6 +580,16 @@ export default function App() {
   };
 
   const [helpOpen, setHelpOpen] = useState(false);
+
+  // Sound preference, persisted via localStorage in sound.js. Header toggle flips it.
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    setSoundEnabled(next);
+    // If we're enabling, give a tiny click so the user hears something immediately.
+    if (next) playClick();
+  };
 
   // In-memory dismiss state for the win modal. Lets the player look at their
   // solved board without the modal in the way. Reopen via the "View summary"
@@ -687,6 +700,8 @@ export default function App() {
           day={today.day}
           dateLabel={today.dateLabel}
           streak={stats.currentStreak}
+          soundOn={soundOn}
+          onToggleSound={toggleSound}
           onHelp={(e) => { e?.stopPropagation?.(); setHelpOpen(true); }}
         />
         <Timer

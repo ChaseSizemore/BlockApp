@@ -60,7 +60,7 @@
   font-weight: 500;
 }
 
-.hd__help {
+.hd__help, .hd__icon {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -73,8 +73,13 @@
   justify-content: center;
   border: 1px solid var(--line);
   transition: background 0.15s ease;
+  cursor: pointer;
 }
-.hd__help:hover { background: var(--line-soft); }
+.hd__help:hover, .hd__icon:hover { background: var(--line-soft); }
+
+.hd__icon {
+  font-size: 12px;
+}
 
 .hd__streak {
   grid-column: 2;

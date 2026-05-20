@@ -1,6 +1,6 @@
 import './Header.css';
 
-export default function Header({ day, dateLabel, streak, onHelp }) {
+export default function Header({ day, dateLabel, streak, soundOn = true, onToggleSound, onHelp }) {
   return (
     <header className="hd">
       <div className="hd__left">
@@ -10,6 +10,16 @@ export default function Header({ day, dateLabel, streak, onHelp }) {
         <p className="hd__tagline">A DAILY ARRANGEMENT</p>
       </div>
       <div className="hd__right">
+        {onToggleSound && (
+          <button
+            className="hd__icon"
+            onClick={(e) => { e.stopPropagation(); onToggleSound(); }}
+            aria-label={soundOn ? 'Mute sounds' : 'Unmute sounds'}
+            title={soundOn ? 'Sound on' : 'Sound off'}
+          >
+            {soundOn ? '🔊' : '🔇'}
+          </button>
+        )}
         <button className="hd__help" onClick={onHelp} aria-label="How to play">
           ?
         </button>
