@@ -28,13 +28,3 @@
 .piece {
   transition: transform 0.18s ease;
 }
-
-.piece--placed {
-  animation: lockIn 0.22s ease;
-}
-
-@keyframes lockIn {
-  0% { transform: scale(0.92); opacity: 0.5; }
-  60% { transform: scale(1.04); opacity: 1; }
-  100% { transform: scale(1); }
-}

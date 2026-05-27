@@ -1,9 +1,15 @@
 .ctrls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   margin-top: 6px;
   flex-shrink: 0;
+}
+
+.ctrls__main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
 .ctrls__btn {
@@ -57,4 +63,36 @@
 
 .ctrls__btn--drop-on {
   background: var(--ink);
+}
+
+/* Reset sits in the controls row so users find it near the piece actions, but
+   styled small + transparent so it doesn't compete with rotate/flip and isn't
+   easy to hit accidentally. Two-tap confirm — the armed state is also subtler
+   than a modal so a misfire just times out. */
+.ctrls__btn--reset {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink-soft);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  padding: 4px 8px;
+  align-self: center;
+  opacity: 0.65;
+}
+
+.ctrls__btn--reset:not(:disabled):hover {
+  background: var(--line-soft);
+  color: var(--ink);
+  opacity: 1;
+}
+
+.ctrls__btn--reset:disabled {
+  opacity: 0.3;
+}
+
+.ctrls__btn--reset.ctrls__btn--confirm {
+  background: rgba(200, 75, 54, 0.10);
+  color: var(--bad);
+  opacity: 1;
 }

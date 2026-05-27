@@ -265,6 +265,15 @@ export default function App() {
     setProgress((p) => ({ ...p, startedAt: Date.now() }));
   };
 
+  // Clear every user-placed piece back to the tray. Timer keeps running (the
+  // user committed time to this attempt; clearing the board doesn't refund
+  // it). Hints stay because they're not user-placed. Disabled after the
+  // puzzle is solved — once locked in, the win state is final.
+  const resetBoard = () => {
+    setSelectedId(null);
+    setProgress((p) => ({ ...p, placements: {}, floating: {} }));
+  };
+
   // Helpers.
   const getPieceLetter = (id) => puzzle.solution[id].letter;
   const getPieceOrient = (id) => {
@@ -733,6 +742,8 @@ export default function App() {
           active={selectedId !== null}
           onRotate={(e) => { e?.stopPropagation?.(); rotate(); }}
           onFlip={(e) => { e?.stopPropagation?.(); flip(); }}
+          onReset={resetBoard}
+          canReset={!progress.solved && Object.keys(progress.placements).length > 0}
         />
         <Tray
           ref={trayRef}
