@@ -28,3 +28,24 @@
 .piece {
   transition: transform 0.18s ease;
 }
+
+/* Selection visual: the selected piece breathes (opacity pulse). Non-selected
+   pieces stay at full opacity — in a spatial puzzle the user needs the rest
+   of the board visible to figure out where the selected piece should go.
+   Animating only opacity keeps the effect cheap and avoids any pixel shift
+   that could expose seams. */
+.piece--selected {
+  animation: piece-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes piece-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece--selected {
+    animation: none;
+    opacity: 0.85;
+  }
+}

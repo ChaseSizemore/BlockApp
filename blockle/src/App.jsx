@@ -322,6 +322,9 @@ export default function App() {
         lastSolvedDayKey: today.day,
       }));
       setProgress((p) => ({ ...p, solved: true, elapsedMs: finalMs, solvedAt: Date.now() }));
+      // Deselect the just-placed piece so it stops pulsing — the puzzle is
+      // locked in, and a "live" piece visual at this point is just noise.
+      setSelectedId(null);
       playWin();
     }
   }, [board, progress.solved, elapsedMs, stats, today.day, setProgress, setStats]);
@@ -421,8 +424,11 @@ export default function App() {
         const dist = Math.hypot(e.clientX - g.startX, e.clientY - g.startY);
         if (dist < DRAG_THRESHOLD) return;
         g.hasDragged = true;
-        // Begin actual drag: lift the piece from its source.
+        // Begin actual drag: lift the piece from its source. Also select the
+        // piece — dragging is an intentional act, so Rotate/Flip should target
+        // this piece without an extra tap.
         const id = g.pieceId;
+        setSelectedId(id);
         if (g.source === 'placed') {
           setProgress((p) => {
             const next = { ...p.placements };

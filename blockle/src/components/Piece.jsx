@@ -210,13 +210,10 @@ export default function Piece({
     strokeDash = undefined;
   }
 
-  const baseFilter =
+  const filter =
     variant === 'placed' ? 'drop-shadow(0 1px 0 rgba(0,0,0,0.05))'
     : variant === 'floating' ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.10))'
     : 'none';
-  const filter = selected
-    ? `${baseFilter === 'none' ? '' : baseFilter + ' '}drop-shadow(0 0 0 #1F1A14) drop-shadow(0 0 0 #1F1A14)`
-    : baseFilter;
 
   // Diagonal-stripe pattern for hints, sharing one continuous coordinate space
   // (patternUnits="userSpaceOnUse") so stripes never break at cell boundaries.
@@ -240,7 +237,7 @@ export default function Piece({
 
   return (
     <div
-      className={`piece piece--${variant} ${className}`}
+      className={`piece piece--${variant}${selected ? ' piece--selected' : ''} ${className}`}
       onPointerDown={onPointerDown}
       style={{
         position: 'absolute',

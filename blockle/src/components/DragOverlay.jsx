@@ -22,6 +22,7 @@ export default function DragOverlay({ drag }) {
         cellSize={drag.cellSize ?? CELL}
         gap={drag.gap ?? GAP}
         variant="floating"
+        selected
       />
     </div>
   );
