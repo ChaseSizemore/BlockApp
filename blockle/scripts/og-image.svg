@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#F4EFE4"/>
+
+  <!-- Subtle border to give the card a slight inset feel on light social cards -->
+  <rect x="0.5" y="0.5" width="1199" height="629" fill="none" stroke="#E5DDC8" stroke-width="1"/>
+
+  <!-- Wordmark -->
+  <text x="80" y="280" font-family="Georgia, 'Times New Roman', serif"
+        font-weight="700" font-size="180" fill="#1F1A14" letter-spacing="-4">Cobble</text>
+
+  <!-- Tagline -->
+  <text x="86" y="340" font-family="Helvetica, Arial, sans-serif"
+        font-weight="500" font-size="32" fill="#4A4339" letter-spacing="0.5">A daily pentomino puzzle</text>
+
+  <!-- Sample share mosaic — same pacing pattern the user produces, advertises the share format -->
+  <g transform="translate(80, 420)">
+    <rect x="0"   y="0" width="70" height="70" rx="10" fill="#5FC04E"/>
+    <rect x="82"  y="0" width="70" height="70" rx="10" fill="#5FC04E"/>
+    <rect x="164" y="0" width="70" height="70" rx="10" fill="#F4D03F"/>
+    <rect x="246" y="0" width="70" height="70" rx="10" fill="#E8A33E"/>
+    <rect x="328" y="0" width="70" height="70" rx="10" fill="#DC4E3A"/>
+    <rect x="410" y="0" width="70" height="70" rx="10" fill="#F4D03F"/>
+    <rect x="492" y="0" width="70" height="70" rx="10" fill="#F4D03F"/>
+    <rect x="574" y="0" width="70" height="70" rx="10" fill="#E8A33E"/>
+    <rect x="656" y="0" width="70" height="70" rx="10" fill="#F4D03F"/>
+    <rect x="738" y="0" width="70" height="70" rx="10" fill="#5FC04E"/>
+    <rect x="820" y="0" width="70" height="70" rx="10" fill="#5FC04E"/>
+    <rect x="902" y="0" width="70" height="70" rx="10" fill="#5FC04E"/>
+  </g>
+
+  <!-- URL anchor -->
+  <text x="86" y="570" font-family="Helvetica, Arial, sans-serif"
+        font-weight="600" font-size="26" fill="#1F1A14" letter-spacing="1.5">cobble.day</text>
+</svg>

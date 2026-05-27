@@ -1,7 +1,7 @@
 import { PIECE_LETTERS, PIECE_ORIENTATIONS, findOrientationIndex } from './pentominoes.js';
 import { mulberry32, shuffled, dayNumber } from './rng.js';
 import { solve, solveWithBudget, emptyBoard, ROWS, COLS } from './solver.js';
-import curatedPuzzles from '../data/puzzles.json';
+import curatedPuzzles from '../data/puzzles.json' with { type: 'json' };
 
 const HINT_COUNT = 2;
 
@@ -91,11 +91,13 @@ function hydrateCurated(entry) {
   return { day: entry.seed, solution, hintIndices: entry.hintIndices };
 }
 
-// Public: the daily puzzle. If a curated set exists, day N → puzzles[N mod N_curated].
-// Otherwise falls back to live pair-rotated generation.
+// Public: the daily puzzle. Days are 1-indexed (launch day = #1), and the
+// catalog is 0-indexed — so day N → puzzles[(N-1) mod N_curated]. Day 1
+// gets puzzles[0], day 2 gets puzzles[1], etc.
 export function generatePuzzleForDay(day) {
   if (curatedPuzzles && curatedPuzzles.length > 0) {
-    const idx = ((day % curatedPuzzles.length) + curatedPuzzles.length) % curatedPuzzles.length;
+    const n = curatedPuzzles.length;
+    const idx = (((day - 1) % n) + n) % n;
     const p = hydrateCurated(curatedPuzzles[idx]);
     return { ...p, day };
   }

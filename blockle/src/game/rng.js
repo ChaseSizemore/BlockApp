@@ -19,9 +19,11 @@ export function shuffled(arr, rand) {
   return out;
 }
 
-// Day number since 2024-01-01 epoch (local time).
+// Day number since launch (local time). Launch day = #1.
+// Change LAUNCH_EPOCH only when actually re-launching — it rotates every
+// player's daily puzzle and shifts localStorage keys.
 export function dayNumber(date = new Date()) {
-  const epoch = new Date(2024, 0, 1);
+  const epoch = new Date(2026, 4, 27); // 2026-05-27 launch
   const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  return Math.floor((start - epoch) / 86400000);
+  return Math.floor((start - epoch) / 86400000) + 1;
 }

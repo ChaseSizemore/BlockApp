@@ -143,7 +143,10 @@ export default function App() {
   const progress = overrideSeed === null ? dailyProgress : overrideProgress;
   const setProgress = overrideSeed === null ? setDailyProgress : setOverrideProgress;
 
-  const [stats, setStats] = useLocalStorage('cobble:v1:stats', INITIAL_STATS);
+  // Storage key bumped at launch (2026-05-27): the old `cobble:v1:stats` held
+  // dev-testing streaks tied to the pre-launch day epoch (#876+). Bumping the
+  // key forces every existing browser to start fresh at day 1.
+  const [stats, setStats] = useLocalStorage('cobble:v1:launch:stats', INITIAL_STATS);
 
   // Tray pieces remember their current orientation (in-memory; doesn't persist).
   const [trayOrients, setTrayOrients] = useState({});
