@@ -150,10 +150,11 @@ export function buildPacingMosaic(placements) {
     .join('');
 }
 
-export function buildPacingShareText(day, elapsedMs, placements, currentStreak) {
+export function buildPacingShareText(day, elapsedMs, placements, currentStreak, tier) {
   const mosaic = buildPacingMosaic(placements);
+  const tierLabel = tier ? ` · ${tier}` : '';
   const streakLine = currentStreak > 0 ? ` · 🔥 ${currentStreak}` : '';
-  return `Cobble #${day}\n${fmt(elapsedMs)}${streakLine}\n${mosaic}\ncobble.day`;
+  return `Cobble #${day}${tierLabel}\n${fmt(elapsedMs)}${streakLine}\n${mosaic}\ncobble.day`;
 }
 
 export async function shareResult(text) {

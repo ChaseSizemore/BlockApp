@@ -22,7 +22,7 @@ export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements,
   // to commit, relative to the user's own median pace. Spoiler-free and
   // distinctive enough to be visually identifiable as Cobble.
   const mosaic = buildPacingMosaic(placements);
-  const shareText = buildPacingShareText(day, elapsedMs, placements, stats.currentStreak);
+  const shareText = buildPacingShareText(day, elapsedMs, placements, stats.currentStreak, puzzle.tier);
 
   const handleShare = async () => {
     const result = await shareResult(shareText);
@@ -48,6 +48,9 @@ export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements,
           <p className="takeover__sub">SOLVED</p>
         </div>
 
+        {puzzle.tier && (
+          <p className={`takeover__tier takeover__tier--${puzzle.tier.toLowerCase()}`}>{puzzle.tier.toUpperCase()}</p>
+        )}
         <div className="takeover__time serif">{fmt(elapsedMs)}</div>
 
         <div className="takeover__board">
@@ -55,8 +58,12 @@ export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements,
         </div>
 
         <p className="takeover__stats">
-          <span className="serif">{stats.currentStreak}</span> day streak
-          <span className="takeover__dot">·</span>
+          {stats.currentStreak > 0 && (
+            <>
+              <span className="serif">{stats.currentStreak}</span> day streak
+              <span className="takeover__dot">·</span>
+            </>
+          )}
           <span className="serif">{stats.totalSolved}</span> solved
         </p>
 

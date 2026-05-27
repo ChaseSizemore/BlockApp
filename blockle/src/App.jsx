@@ -730,6 +730,7 @@ export default function App() {
         <Header
           day={today.day}
           dateLabel={today.dateLabel}
+          tier={puzzle.tier}
           streak={stats.currentStreak}
           soundOn={soundOn}
           onToggleSound={toggleSound}

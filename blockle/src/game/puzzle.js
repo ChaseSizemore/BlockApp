@@ -88,7 +88,7 @@ function hydrateCurated(entry) {
       anchor: s.anchor,
     };
   });
-  return { day: entry.seed, solution, hintIndices: entry.hintIndices };
+  return { day: entry.seed, solution, hintIndices: entry.hintIndices, tier: entry.tier };
 }
 
 // Public: the daily puzzle. Days are 1-indexed (launch day = #1), and the

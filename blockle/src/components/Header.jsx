@@ -1,6 +1,6 @@
 import './Header.css';
 
-export default function Header({ day, dateLabel, streak, soundOn = true, onToggleSound, onHelp }) {
+export default function Header({ day, dateLabel, tier, streak, soundOn = true, onToggleSound, onHelp }) {
   return (
     <header className="hd">
       <div className="hd__left">
@@ -26,12 +26,15 @@ export default function Header({ day, dateLabel, streak, soundOn = true, onToggl
         <div className="hd__meta">
           <div className="hd__num serif">#{day}</div>
           <div className="hd__date">{dateLabel}</div>
+          {tier && <div className={`hd__tier hd__tier--${tier.toLowerCase()}`}>{tier.toUpperCase()}</div>}
         </div>
       </div>
-      <div className="hd__streak">
-        <span className="hd__streak-emoji">🔥</span>
-        <span>{streak} day streak</span>
-      </div>
+      {streak > 0 && (
+        <div className="hd__streak">
+          <span className="hd__streak-emoji">🔥</span>
+          <span>{streak} day streak</span>
+        </div>
+      )}
     </header>
   );
 }

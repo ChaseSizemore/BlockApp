@@ -65,6 +65,22 @@
   color: var(--bad);
 }
 
+/* Difficulty badge sits just above the giant time. Color shifts per tier so
+   the share screen visibly differentiates an Easy 1:00 from an Expert 1:00. */
+.takeover__tier {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  margin-bottom: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.takeover__tier--easy   { color: var(--good); background: rgba(79, 139, 58, 0.10); }
+.takeover__tier--medium { color: #B57F1C;     background: rgba(181, 127, 28, 0.10); }
+.takeover__tier--hard   { color: #B26039;     background: rgba(178, 96, 57, 0.10); }
+.takeover__tier--expert { color: var(--bad);  background: rgba(200, 75, 54, 0.10); }
+
 .takeover__time {
   font-size: 88px;
   font-weight: 900;
