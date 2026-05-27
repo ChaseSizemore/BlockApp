@@ -766,7 +766,7 @@ export default function App() {
           onRotate={(e) => { e?.stopPropagation?.(); rotate(); }}
           onFlip={(e) => { e?.stopPropagation?.(); flip(); }}
           onReset={resetBoard}
-          canReset={!progress.solved && Object.keys(progress.placements).length > 0}
+          canReset={!progress.solved && (Object.keys(progress.placements).length > 0 || Object.keys(progress.floating).length > 0)}
         />
         <Tray
           ref={trayRef}

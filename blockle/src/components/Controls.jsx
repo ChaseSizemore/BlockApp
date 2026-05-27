@@ -38,7 +38,7 @@ export default function Controls({ active, onRotate, onFlip, onReset, canReset }
         onClick={handleReset}
         disabled={!canReset}
       >
-        {confirming ? 'TAP AGAIN TO CLEAR' : 'RESET BOARD'}
+        {confirming ? 'TAP AGAIN TO CLEAR' : 'RESET PIECES'}
       </button>
     </div>
   );
