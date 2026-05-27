@@ -496,9 +496,13 @@ export default function App() {
       }
 
       if (placedCells) {
+        // Stamp the placement with elapsed time so the share mosaic can render
+        // a per-piece pacing visual. Re-placing a piece overwrites the previous
+        // stamp — only the final placement (the one on the board at win) counts.
+        const placedAt = elapsedMs;
         setProgress((p) => ({
           ...p,
-          placements: { ...p.placements, [id]: { letter, cells: placedCells, orient } },
+          placements: { ...p.placements, [id]: { letter, cells: placedCells, orient, placedAt } },
         }));
         playClick();
       } else if (isPointerOverTray(e.clientX, e.clientY)) {
@@ -626,12 +630,21 @@ export default function App() {
 
   const autoSolve = () => {
     const newPlacements = {};
+    // Fake placement-timestamp gaps so the share mosaic renders with visible
+    // color variation when testing via DevPanel. Mostly fast/steady with two
+    // "stuck" beats for realism. Real solves get real timestamps in onUp.
+    const fakeGapsMs = [10000, 8000, 12000, 65000, 14000, 18000, 22000, 95000, 12000, 15000, 10000, 8000];
+    let t = 0;
+    let idx = 0;
     puzzle.solution.forEach((s, i) => {
       if (hintIndexSet.has(i)) return;
+      t += fakeGapsMs[idx] || 12000;
+      idx++;
       newPlacements[i] = {
         letter: s.letter,
         cells: s.cells,
         orient: normalizeCells(s.cells),
+        placedAt: t,
       };
     });
     setProgress((p) => ({

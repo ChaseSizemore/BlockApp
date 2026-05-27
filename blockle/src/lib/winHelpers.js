@@ -106,6 +106,56 @@ export function buildShareText(day, elapsedMs, grid) {
   return `COBBLE #${day} — ${fmt(elapsedMs)}\n${grid}\ncobble.game`;
 }
 
+// Pacing mosaic: one square per piece (in placement order), colored by the gap
+// from the previous final-placement timestamp. Tells the story of where the
+// solver got stuck without revealing any piece positions.
+//   🟩 fast    — well under your median pace (or under the absolute fast floor)
+//   🟨 steady  — around your median
+//   🟧 slow    — meaningfully longer than median
+//   🟥 stuck   — much longer than median (or above the absolute stuck ceiling)
+//
+// Backtracking is naturally absorbed: time spent on a failed-and-undone attempt
+// becomes the gap before whatever piece you commit next. So the FIRST piece's
+// "gap" is just elapsed-to-first-placement — and if you tried-and-removed for
+// 5 minutes before settling on a real layout, that 5 min lands on piece 1.
+export function buildPacingMosaic(placements) {
+  const sorted = Object.values(placements)
+    .filter((p) => typeof p.placedAt === 'number')
+    .sort((a, b) => a.placedAt - b.placedAt);
+  if (!sorted.length) return '';
+
+  const gaps = sorted.map((p, i) => (i === 0 ? p.placedAt : p.placedAt - sorted[i - 1].placedAt));
+
+  // Relative median for normalizing color across fast and slow solves alike.
+  const asc = [...gaps].sort((a, b) => a - b);
+  const mid = Math.floor(asc.length / 2);
+  const median = asc.length % 2 === 0 ? (asc[mid - 1] + asc[mid]) / 2 : asc[mid];
+
+  // Absolute floor + ceiling. Anything under FAST is always green regardless
+  // of solve-relative pace; anything over STUCK is always red. Keeps a
+  // sub-minute speedrun from rendering a fake "red" piece and stops a
+  // multi-minute pause from being lost in a sea of yellows.
+  const FAST_MS = 8 * 1000;
+  const STUCK_MS = 120 * 1000;
+
+  return gaps
+    .map((g) => {
+      if (g <= FAST_MS) return '🟩';
+      if (g >= STUCK_MS) return '🟥';
+      if (g < median * 0.7) return '🟩';
+      if (g < median * 1.4) return '🟨';
+      if (g < median * 2.5) return '🟧';
+      return '🟥';
+    })
+    .join('');
+}
+
+export function buildPacingShareText(day, elapsedMs, placements, currentStreak) {
+  const mosaic = buildPacingMosaic(placements);
+  const streakLine = currentStreak > 0 ? ` · 🔥 ${currentStreak}` : '';
+  return `Cobble #${day}\n${fmt(elapsedMs)}${streakLine}\n${mosaic}\ncobble.day`;
+}
+
 export async function shareResult(text) {
   try {
     if (navigator.share) {

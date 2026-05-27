@@ -98,6 +98,47 @@
   color: var(--ink-mute);
 }
 
+/* Pacing mosaic: one emoji square per piece placed, in placement order.
+   font-size + letter-spacing tuned so 12 squares fill a comfortable line
+   without wrapping on phones; tabular-nums keeps the layout consistent. */
+.takeover__mosaic {
+  font-size: 22px;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin: 4px 0 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.takeover__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+
+.takeover__legendSq {
+  font-size: 11px;
+  margin-right: 2px;
+}
+
+.takeover__legendDot {
+  color: var(--ink-mute);
+  opacity: 0.5;
+}
+
+.takeover__shareHint {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-mute);
+  max-width: 320px;
+  padding: 0 8px;
+}
+
 .takeover__share {
   width: 100%;
   max-width: 320px;

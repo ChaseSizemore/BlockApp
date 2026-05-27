@@ -5,21 +5,30 @@ import {
   fmt,
   fmtCountdown,
   nextMidnightDelta,
-  buildTimeMosaic,
+  buildPacingMosaic,
+  buildPacingShareText,
   shareResult,
 } from '../lib/winHelpers.js';
 
 export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements, onClose }) {
   const [countdown, setCountdown] = useState(nextMidnightDelta());
+  const [shareState, setShareState] = useState(null);
   useEffect(() => {
     const id = setInterval(() => setCountdown(nextMidnightDelta()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Share text uses the time-mosaic encoding — one color, no palette collision,
-  // non-spoilery, scales naturally with solve time.
-  const mosaic = buildTimeMosaic(elapsedMs);
-  const shareText = `COBBLE #${day} — ${fmt(elapsedMs)}\n${mosaic}\n🔥 ${stats.currentStreak} day streak · cobble.game`;
+  // Per-piece pacing mosaic: one square per piece colored by how long it took
+  // to commit, relative to the user's own median pace. Spoiler-free and
+  // distinctive enough to be visually identifiable as Cobble.
+  const mosaic = buildPacingMosaic(placements);
+  const shareText = buildPacingShareText(day, elapsedMs, placements, stats.currentStreak);
+
+  const handleShare = async () => {
+    const result = await shareResult(shareText);
+    setShareState(result);
+    setTimeout(() => setShareState(null), 2000);
+  };
 
   return (
     <div className="takeover">
@@ -51,14 +60,25 @@ export default function WinTakeover({ day, elapsedMs, stats, puzzle, placements,
           <span className="serif">{stats.totalSolved}</span> solved
         </p>
 
+        <div className="takeover__mosaic" aria-label="Pacing mosaic">{mosaic}</div>
+
         <button
-          className="takeover__share takeover__share--disabled"
-          disabled
-          title="Share coming soon"
-          aria-label="Share coming soon"
+          className="takeover__share"
+          onClick={handleShare}
+          aria-label="Share result"
         >
-          Share result
+          {shareState === 'shared' ? 'Shared!' : shareState === 'copied' ? 'Copied to clipboard' : shareState === 'failed' ? 'Try again' : 'Share result'}
         </button>
+        <p className="takeover__legend">
+          <span className="takeover__legendSq" aria-hidden="true">🟩</span> fast
+          <span className="takeover__legendDot">·</span>
+          <span className="takeover__legendSq" aria-hidden="true">🟨</span> steady
+          <span className="takeover__legendDot">·</span>
+          <span className="takeover__legendSq" aria-hidden="true">🟧</span> slow
+          <span className="takeover__legendDot">·</span>
+          <span className="takeover__legendSq" aria-hidden="true">🟥</span> stuck
+        </p>
+        <p className="takeover__shareHint">One square per piece you placed, in order — colored by how long it took. If you pick pieces back up to try again, that time counts toward your next placement.</p>
 
         <p className="takeover__countdown">
           Next puzzle in <span className="serif">{fmtCountdown(countdown)}</span>
